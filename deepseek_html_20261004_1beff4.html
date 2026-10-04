@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Baldi's Basics - HTML Remake</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000;
+    font-family: 'Comic Sans MS', cursive, sans-serif; user-select: none; }
+  #menu { position: fixed; inset: 0; background: #ffffff; overflow: hidden; z-index: 50; }
+  #menu.hidden { display: none; }
+  #logo { position: absolute; top: 4%; left: 50%; transform: translateX(-50%);
+    text-align: center; z-index: 5; width: 90%; max-width: 900px; pointer-events: none; }
+  #logo .line1 { font-family: 'Comic Sans MS', cursive;
+    font-size: clamp(28px, 5.5vw, 72px); line-height: 1; color: #2ecc40; font-weight: bold;
+    display: inline-block; transform: rotate(-3deg);
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    letter-spacing: -1px; }
+  #logo .line1 .basics { font-family: 'Georgia', 'Times New Roman', serif;
+    color: #ffffff; font-weight: bold; font-size: 0.9em;
+    text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 3px 3px 0 #000;
+    margin-left: 0.15em; letter-spacing: 2px; }
+  #logo .line2 { font-family: 'Comic Sans MS', cursive;
+    font-size: clamp(16px, 3vw, 40px); color: #e63329; font-style: italic; margin-top: 4px; }
+  #logo .tm { font-size: 0.4em; vertical-align: super; color: #e63329; font-style: normal; }
+  #scene { position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -42%); width: 90vw; max-width: 900px; height: 70vh; max-height: 620px; }
+  #blackboard { position: absolute; top: 8%; left: 22%; width: 72%; height: 68%;
+    background: #0a0a0a; border: 14px solid #6b3410; border-radius: 4px;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.9), 6px 6px 0 rgba(0,0,0,0.3);
+    transform: rotate(1deg); overflow: hidden; }
+  #baldiWrap { position: absolute; left: 6%; bottom: 0; width: 42%; height: 90%; z-index: 3;
+    filter: drop-shadow(6px 10px 8px rgba(0,0,0,0.25)); }
+  #historicality { position: absolute; left: 30%; top: 32%; z-index: 6;
+    pointer-events: none; transform: rotate(38deg); transform-origin: left center; white-space: nowrap; }
+  #historicality span { font-family: 'Comic Sans MS', cursive; font-weight: bold;
+    font-size: clamp(20px, 4.5vw, 60px); display: inline-block; color: #2ecc40;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    animation: letterBounce 2s ease-in-out infinite; }
+  @keyframes letterBounce { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.03); } }
+  #yum { position: absolute; top: 30%; left: 55%; z-index: 7; pointer-events: none; }
+  #yum span { font-family: 'Comic Sans MS', cursive; font-weight: bold; font-style: italic;
+    font-size: clamp(28px, 5.5vw, 76px); display: inline-block; color: #ffe600;
+    text-shadow: 2px 2px 0 #000, 3px 3px 0 #000, 4px 4px 0 #000, 5px 5px 0 #000, 6px 6px 8px rgba(0,0,0,0.5);
+    transform: rotate(-8deg); animation: yumWobble 1.4s ease-in-out infinite; }
+  @keyframes yumWobble { 0%, 100% { transform: rotate(-8deg) scale(1); } 50% { transform: rotate(-5deg) scale(1.05); } }
+  #fallingLetters { position: absolute; left: 38%; bottom: 0; width: 25%; height: 55%; z-index: 4; pointer-events: none; }
+  .fallLetter { position: absolute; font-family: 'Arial Black', sans-serif; font-weight: 900;
+    color: #f5d000; font-size: 54px; line-height: 1;
+    text-shadow: -1px -1px 0 #a08000, 1px -1px 0 #a08000, -1px 1px 0 #a08000, 1px 1px 0 #a08000,
+                 2px 2px 0 #806000, 3px 3px 0 #604800, 4px 4px 6px rgba(0,0,0,0.5);
+    opacity: 0; animation: letterFall 3.5s ease-in infinite; }
+  @keyframes letterFall { 0% { opacity: 0; transform: translateY(-30px) rotate(-20deg) scale(0.7); }
+    15% { opacity: 1; transform: translateY(0) rotate(-10deg) scale(1); }
+    70% { opacity: 1; transform: translateY(80px) rotate(20deg) scale(1); }
+    100% { opacity: 0; transform: translateY(140px) rotate(40deg) scale(0.8); } }
+  #menuButtons { position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 14px; z-index: 10; flex-wrap: wrap; justify-content: center; padding: 0 20px; }
+  .menuBtn { font-family: 'Comic Sans MS', cursive; font-weight: bold;
+    font-size: clamp(16px, 2.2vw, 24px); padding: 12px 32px;
+    background: #2ecc40; color: #fff; border: 4px solid #000; box-shadow: 6px 6px 0 #000;
+    cursor: pointer; text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    transition: transform 0.05s, background 0.15s; min-width: 160px; }
+  .menuBtn:hover { background: #3de253; transform: translate(-2px, -2px); box-shadow: 8px 8px 0 #000; }
+  .menuBtn:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 #000; }
+  .menuBtn.red { background: #e63329; } .menuBtn.red:hover { background: #ff453b; }
+  .menuBtn.yellow { background: #ffe600; color: #000; text-shadow: none; }
+  .menuBtn.yellow:hover { background: #ffef4d; }
+  #credits { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    color: #666; font-size: 12px; z-index: 5; text-align: center; font-family: Arial, sans-serif; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100;
+    display: none; align-items: center; justify-content: center; }
+  .modal.show { display: flex; }
+  .modalBox { background: #fffbe6; border: 5px solid #000; box-shadow: 10px 10px 0 #000;
+    padding: 30px 40px; max-width: 520px; text-align: center; font-family: 'Comic Sans MS', cursive; }
+  .modalBox h2 { font-size: 32px; margin-bottom: 20px; color: #2ecc40;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
+  .modalBox p { font-size: 16px; margin-bottom: 14px; color: #333; line-height: 1.6; text-align: left; }
+  .modalBox label { display: flex; justify-content: space-between; align-items: center;
+    margin: 12px 0; font-size: 18px; cursor: pointer; }
+  .modalBox input[type="range"] { width: 200px; }
+  .closeBtn { margin-top: 20px; padding: 10px 30px; font-size: 20px; font-family: inherit;
+    background: #e63329; color: #fff; border: 4px solid #000; box-shadow: 5px 5px 0 #000;
+    cursor: pointer; font-weight: bold; }
+  .closeBtn:active { transform: translate(2px, 2px); box-shadow: 3px 3px 0 #000; }
+
+  #game { display: none; position: fixed; inset: 0; background: #000; z-index: 40; overflow: hidden; }
+  #game.active { display: block; }
+  #gameCanvas { display: block; width: 100vw; height: 100vh; cursor: crosshair; }
+
+  #gameHud { position: fixed; top: 0; left: 0; right: 0; padding: 10px 22px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    pointer-events: none; z-index: 60; }
+  #notebooksText {
+    font-family: 'Comic Sans MS', cursive;
+    font-size: 38px; color: #000;
+    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
+    letter-spacing: 1px; font-weight: bold;
+  }
+  #staminaWrap {
+    position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+    width: 340px; height: 20px; z-index: 60;
+  }
+  #staminaFill { height: 100%; width: 100%; background: #00ff00; transition: width 0.1s linear; }
+  #topRightUI {
+    position: fixed; top: 8px; right: 18px;
+    z-index: 60; pointer-events: none; text-align: right;
+  }
+  #ballsRow { display: flex; gap: 6px; justify-content: flex-end; margin-bottom: 2px; }
+  .ball { width: 44px; height: 44px; border-radius: 50%; border: 3px solid #000;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.4); }
+  .ball.red { background: radial-gradient(circle at 35% 30%, #ff5555, #cc0000 70%, #880000); }
+  .ball.white { background: radial-gradient(circle at 35% 30%, #ffffff, #e0e0e0 70%, #b0b0b0); }
+  #nothingText {
+    font-family: 'Comic Sans MS', cursive; font-size: 22px; color: #000;
+    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
+    font-weight: bold;
+  }
+  #gameItems { position: fixed; bottom: 20px; left: 20px; display: flex; gap: 10px; z-index: 60; }
+  .item-slot { width: 64px; height: 64px; background: rgba(0,0,0,0.75);
+    border: 4px solid #fff; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 32px; color: #fff; position: relative;
+    opacity: 0.35; transition: opacity 0.2s; }
+  .item-slot.active { opacity: 1; border-color: #ffe600; }
+  .item-slot .key { position: absolute; top: -8px; left: -8px; background: #ffe600;
+    color: #000; width: 22px; height: 22px; border-radius: 50%; font-size: 14px;
+    font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid #000; }
+  .item-slot .count { position: absolute; bottom: -6px; right: -6px; background: #fff;
+    color: #000; min-width: 22px; height: 22px; border-radius: 11px; font-size: 14px;
+    font-weight: bold; display: flex; align-items: center; justify-content: center;
+    border: 2px solid #000; padding: 0 4px; }
+  #notice { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: #fffbe6; border: 5px solid #000; padding: 34px 44px;
+    text-align: center; max-width: 640px; box-shadow: 12px 12px 0 #000;
+    z-index: 70; display: none; font-family: 'Comic Sans MS', cursive; }
+  #notice button { padding: 16px 22px; font-size: 28px; font-family: inherit;
+    font-weight: bold; background: #ffe600; color: #000; border: 4px solid #000;
+    box-shadow: 5px 5px 0 #000; cursor: pointer; margin: 6px; }
+  #notice button:hover { background: #fff176; }
+  #notice button:active { transform: translate(2px, 2px); box-shadow: 3px 3px 0 #000; }
+  #flash { position: fixed; inset: 0; background: #f00; opacity: 0; pointer-events: none;
+    z-index: 55; transition: opacity 0.2s; }
+  #flashGreen { position: fixed; inset: 0; background: #00ff00; opacity: 0;
+    pointer-events: none; z-index: 55; transition: opacity 0.2s; }
+  #damage { position: fixed; inset: 0; pointer-events: none; z-index: 54;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(200,0,0,0.65) 100%);
+    opacity: 0; transition: opacity 0.3s; }
+  #pickupMsg { position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%);
+    color: #ffe600; font-size: 36px; text-shadow: 3px 3px 0 #000, -1px -1px 0 #000;
+    pointer-events: none; z-index: 58; opacity: 0; transition: opacity 0.3s; font-weight: bold; }
+  #pauseBtn { position: fixed; bottom: 14px; right: 14px; background: rgba(0,0,0,0.7);
+    color: #fff; border: 3px solid #fff; border-radius: 6px; padding: 8px 16px;
+    font-size: 16px; font-family: 'Comic Sans MS', cursive; cursor: pointer; z-index: 61; }
+  #pauseBtn:hover { background: rgba(0,0,0,0.9); }
+  #gameHint {
+    position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%);
+    color: #000; font-size: 12px; font-family: Arial, sans-serif;
+    text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+    opacity: 0.75; z-index: 60; text-align: center; line-height: 1.4;
+    pointer-events: none;
+  }
+
+  /* ============ ПОЛНОЭКРАННАЯ КАРТА ============ */
+  #fullmap {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.94);
+    z-index: 65;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #fullmap.hidden { display: none; }
+  .fullmap-header {
+    color: #ffe600;
+    font-family: 'Comic Sans MS', cursive;
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    margin-bottom: 14px;
+    letter-spacing: 3px;
+  }
+  #fullmapCanvas {
+    border: 5px solid #000;
+    background: #222;
+    box-shadow: 0 0 40px rgba(255, 230, 0, 0.4);
+    max-width: 95vw;
+    max-height: 78vh;
+  }
+  .fullmap-hint {
+    color: #ccc;
+    font-family: 'Comic Sans MS', cursive;
+    font-size: 16px;
+    margin-top: 14px;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .fullmap-hint b {
+    color: #ffe600;
+    background: #333;
+    padding: 2px 10px;
+    border-radius: 4px;
+    border: 2px solid #000;
+  }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  #logo { animation: fadeUp 0.6s ease-out; }
+  #scene { animation: fadeUp 0.8s ease-out 0.1s backwards; }
+  #menuButtons { animation: fadeUp 0.8s ease-out 0.4s backwards; }
+
+  .thinkpad-hidden { display: none !important; }
+  #thinkpad { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 70;
+    display: flex; align-items: center; justify-content: center;
+    font-family: Arial, Helvetica, sans-serif; animation: tpFadeIn 0.35s ease-out; }
+  @keyframes tpFadeIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+  #thinkpad.shake .tp-device { animation: tpShake 0.4s; }
+  @keyframes tpShake { 0%, 100% { transform: translateX(0) rotate(0deg); }
+    20% { transform: translateX(-12px) rotate(-2deg); } 40% { transform: translateX(12px) rotate(2deg); }
+    60% { transform: translateX(-8px) rotate(-1deg); } 80% { transform: translateX(8px) rotate(1deg); } }
+  #thinkpad.win .tp-screen { animation: tpWin 0.6s ease-out; }
+  @keyframes tpWin { 0% { background: #fff; } 40% { background: #d4ffd4; box-shadow: 0 0 40px #0f0; } 100% { background: #fff; } }
+  #thinkpad.lose .tp-screen { animation: tpLose 0.6s ease-out; }
+  @keyframes tpLose { 0% { background: #fff; } 40% { background: #ffd4d4; box-shadow: 0 0 40px #f00; } 100% { background: #fff; } }
+  .tp-device { position: relative; width: 780px; max-width: 96vw; height: 480px;
+    background: radial-gradient(ellipse at 40% 30%, #a8e858 0%, #7ec435 40%, #4a8c1e 100%);
+    border-radius: 30px 30px 40px 40px;
+    box-shadow: inset -8px -12px 24px rgba(0,0,0,0.35), inset 8px 8px 24px rgba(255,255,255,0.25),
+      0 20px 60px rgba(0,0,0,0.7);
+    padding: 30px; display: grid;
+    grid-template-columns: 55px 1.2fr 1.6fr 200px;
+    grid-template-rows: 40px 1fr 100px 130px;
+    grid-template-areas: "title title title title" "nbs screen screen keypad"
+      "nbs baldi  answer keypad" "nbs baldi  answer ok";
+    gap: 12px; }
+  .tp-antenna { position: absolute; top: -70px; left: 50%; width: 8px; height: 70px;
+    background: linear-gradient(90deg, #888 0%, #ddd 40%, #888 100%);
+    transform: translateX(-50%) rotate(-8deg); border-radius: 4px; box-shadow: 0 0 8px rgba(0,0,0,0.4); }
+  .tp-ball { position: absolute; top: -90px; left: 50%; width: 0; height: 0; }
+  .tp-ball::before { content: ''; position: absolute; top: -50px; left: 50%;
+    transform: translate(-50%, 0); width: 100px; height: 70px;
+    background: radial-gradient(ellipse at 40% 30%, #a020a0 0%, #6a106a 60%, #3a0a3a 100%);
+    border-radius: 50%;
+    box-shadow: inset -6px -8px 16px rgba(0,0,0,0.5), inset 6px 6px 12px rgba(255,255,255,0.15), 0 0 12px rgba(0,0,0,0.5); }
+  .tp-title { grid-area: title; font-family: 'Comic Sans MS', cursive;
+    font-size: 26px; color: #2244ee; text-align: center; font-weight: bold; }
+  .tp-notebooks { grid-area: nbs; display: flex; flex-direction: column;
+    gap: 8px; justify-content: center; }
+  .tp-nb-slot { width: 50px; height: 50px; background: #f0f0f0; border-radius: 8px;
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.3); position: relative; }
+  .tp-nb-slot.done::after { content: '✓'; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #00cc00; font-size: 38px; font-weight: bold; text-shadow: 1px 1px 0 #000; }
+  .tp-screen { grid-area: screen; background: #fff; border-radius: 10px;
+    padding: 14px 22px; box-shadow: inset 0 3px 10px rgba(0,0,0,0.2);
+    position: relative; overflow: hidden; }
+  .tp-question-label { font-size: 22px; color: #000;
+    font-family: 'Courier New', monospace; font-weight: bold; margin-bottom: 8px; }
+  .tp-question { font-size: 44px; color: #000;
+    font-family: 'Courier New', monospace; font-weight: bold; }
+  .tp-progress { position: absolute; top: 12px; right: 16px; font-size: 16px;
+    font-family: 'Courier New', monospace; color: #666; font-weight: bold; }
+  .tp-baldi-window { grid-area: baldi; background: #000; border-radius: 10px;
+    overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    display: flex; align-items: center; justify-content: center;
+    padding: 8px; position: relative; }
+  .tp-baldi-face { position: relative; width: 100%; height: 100%;
+    display: flex; align-items: flex-end; justify-content: center; }
+  .tp-baldi-head { width: 90px; height: 100px;
+    background: radial-gradient(ellipse at 40% 30%, #f5d4a8 0%, #e0b080 60%, #a87848 100%);
+    border-radius: 50%; position: relative;
+    box-shadow: inset -4px -6px 12px rgba(0,0,0,0.3); margin-bottom: 30px; }
+  .tp-eye { position: absolute; top: 30px; width: 22px; height: 26px;
+    background: #fff; border-radius: 50%; border: 1.5px solid #000; overflow: hidden; }
+  .tp-eye.left { left: 14px; } .tp-eye.right { right: 14px; }
+  .tp-pupil { position: absolute; top: 8px; left: 7px; width: 10px; height: 10px;
+    background: #000; border-radius: 50%; transition: transform 0.3s; }
+  .tp-nose { position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+    width: 12px; height: 30px; background: #d9a878;
+    border-radius: 50% 50% 40% 40%; box-shadow: inset -2px 0 4px rgba(0,0,0,0.3); }
+  .tp-mouth { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+    width: 34px; height: 8px; border-bottom: 2.5px solid #8b1a1a; border-radius: 0 0 50% 50%; }
+  .tp-baldi-body { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 140px; height: 60px;
+    background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+    border-radius: 40px 40px 0 0; }
+  .tp-answer-label { grid-area: answer; background: #fff; border-radius: 10px 10px 0 0;
+    padding: 8px 14px 0; font-size: 20px; color: #888;
+    font-family: 'Courier New', monospace; letter-spacing: 1px; }
+  .tp-answer-box { grid-area: answer; align-self: end; background: #fff;
+    border-radius: 0 0 10px 10px; padding: 6px 14px 12px; font-size: 40px;
+    color: #000; font-family: 'Courier New', monospace; font-weight: bold;
+    min-height: 30px; box-shadow: inset 0 3px 10px rgba(0,0,0,0.15);
+    display: flex; align-items: center; margin-top: 34px; }
+  .tp-answer-box::after { content: '_'; color: #000;
+    animation: blink 0.8s step-end infinite; margin-left: 2px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .tp-keypad { grid-area: keypad; display: grid; grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr; gap: 8px; align-content: center; }
+  .tp-key { background: #8b1a8b; color: #fff; font-size: 32px;
+    font-family: 'Comic Sans MS', cursive; font-weight: bold; border: none;
+    border-radius: 8px; cursor: pointer;
+    box-shadow: inset -3px -4px 8px rgba(0,0,0,0.4), inset 3px 3px 8px rgba(255,255,255,0.25), 0 3px 0 #4a0a4a;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    transition: transform 0.05s, box-shadow 0.05s; padding: 6px; }
+  .tp-key:hover { background: #a820a8; }
+  .tp-key:active { transform: translateY(2px);
+    box-shadow: inset -3px -4px 8px rgba(0,0,0,0.4), inset 3px 3px 8px rgba(255,255,255,0.25), 0 1px 0 #4a0a4a; }
+  .tp-ok { grid-area: ok;
+    background: radial-gradient(circle at 40% 30%, #a020a0 0%, #7a107a 60%, #4a0a4a 100%);
+    color: #fff; font-size: 42px; font-family: 'Comic Sans MS', cursive;
+    font-weight: bold; border: none; border-radius: 50%; cursor: pointer;
+    box-shadow: inset -5px -8px 16px rgba(0,0,0,0.4), inset 5px 5px 16px rgba(255,255,255,0.2), 0 5px 0 #3a0a3a;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+    transition: transform 0.05s, box-shadow 0.05s;
+    width: 140px; height: 140px; justify-self: center; align-self: center; }
+  .tp-ok:hover { background: radial-gradient(circle at 40% 30%, #c030c0 0%, #901890 60%, #5a0a5a 100%); }
+  .tp-ok:active { transform: translateY(3px);
+    box-shadow: inset -5px -8px 16px rgba(0,0,0,0.4), inset 5px 5px 16px rgba(255,255,255,0.2), 0 2px 0 #3a0a3a; }
+</style>
+</head>
+<body>
+
+<div id="menu">
+  <div id="logo">
+    <div class="line1">Baldi's <span class="basics">BASICS</span></div>
+    <div class="line2">in Education and Learning<span class="tm">™</span></div>
+  </div>
+  <div id="scene">
+    <div id="blackboard"></div>
+    <div id="baldiWrap">
+      <svg viewBox="0 0 400 600" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#2fa84a"/><stop offset="40%" stop-color="#4ddf6a"/>
+            <stop offset="70%" stop-color="#3ec355"/><stop offset="100%" stop-color="#1e8033"/>
+          </linearGradient>
+          <radialGradient id="headGrad" cx="0.35" cy="0.35" r="0.8">
+            <stop offset="0%" stop-color="#f5d4a8"/><stop offset="60%" stop-color="#e8bf8d"/>
+            <stop offset="100%" stop-color="#c99a68"/>
+          </radialGradient>
+          <linearGradient id="armGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#3ec355"/><stop offset="100%" stop-color="#1e8033"/>
+          </linearGradient>
+          <linearGradient id="rulerGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#c9962b"/><stop offset="50%" stop-color="#f5c542"/>
+            <stop offset="100%" stop-color="#a87a1e"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="200" cy="590" rx="90" ry="14" fill="rgba(0,0,0,0.18)"/>
+        <rect x="140" y="500" width="45" height="90" fill="#2a4a9a" stroke="#000" stroke-width="2"/>
+        <rect x="215" y="500" width="45" height="90" fill="#2a4a9a" stroke="#000" stroke-width="2"/>
+        <ellipse cx="162" cy="590" rx="30" ry="10" fill="#1a1a1a" stroke="#000" stroke-width="2"/>
+        <ellipse cx="237" cy="590" rx="30" ry="10" fill="#1a1a1a" stroke="#000" stroke-width="2"/>
+        <path d="M 130 260 Q 100 340 130 420 L 155 415 Q 135 350 160 280 Z" fill="url(#armGrad)" stroke="#000" stroke-width="2.5"/>
+        <circle cx="142" cy="418" r="18" fill="url(#headGrad)" stroke="#000" stroke-width="2.5"/>
+        <path d="M 130 250 L 270 250 L 275 500 L 125 500 Z" fill="url(#bodyGrad)" stroke="#000" stroke-width="3"/>
+        <path d="M 155 250 Q 200 275 245 250" fill="none" stroke="#000" stroke-width="3"/>
+        <path d="M 270 260 Q 320 340 320 420 L 290 425 Q 295 350 265 285 Z" fill="url(#armGrad)" stroke="#000" stroke-width="2.5"/>
+        <circle cx="305" cy="420" r="20" fill="url(#headGrad)" stroke="#000" stroke-width="2.5"/>
+        <g transform="rotate(-18 305 420)">
+          <rect x="295" y="140" width="26" height="290" rx="3" fill="url(#rulerGrad)" stroke="#000" stroke-width="2.5"/>
+          <g fill="#000">
+            <rect x="297" y="150" width="10" height="2"/><text x="309" y="165" font-size="11" font-family="Arial">1</text>
+            <rect x="297" y="210" width="10" height="2"/><text x="309" y="225" font-size="11" font-family="Arial">3</text>
+            <rect x="297" y="270" width="10" height="2"/><text x="309" y="285" font-size="11" font-family="Arial">5</text>
+            <rect x="297" y="330" width="10" height="2"/><text x="309" y="345" font-size="11" font-family="Arial">7</text>
+            <rect x="297" y="390" width="10" height="2"/><text x="309" y="405" font-size="11" font-family="Arial">9</text>
+          </g>
+        </g>
+        <ellipse cx="200" cy="180" rx="85" ry="105" fill="url(#headGrad)" stroke="#000" stroke-width="3"/>
+        <path d="M 155 135 Q 175 128 195 133" fill="none" stroke="#7a4a2a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M 205 133 Q 225 128 245 135" fill="none" stroke="#7a4a2a" stroke-width="4" stroke-linecap="round"/>
+        <ellipse cx="170" cy="170" rx="26" ry="30" fill="#fff" stroke="#000" stroke-width="2.5"/>
+        <ellipse cx="230" cy="170" rx="26" ry="30" fill="#fff" stroke="#000" stroke-width="2.5"/>
+        <circle cx="180" cy="175" r="11" fill="#000"/><circle cx="240" cy="175" r="11" fill="#000"/>
+        <circle cx="183" cy="171" r="3" fill="#fff"/><circle cx="243" cy="171" r="3" fill="#fff"/>
+        <path d="M 200 175 Q 195 220 200 235 Q 208 240 212 230 Q 215 210 210 180 Z" fill="#e8bf8d" stroke="#000" stroke-width="2.5"/>
+        <path d="M 165 245 Q 200 275 235 245" fill="none" stroke="#8b1a1a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M 175 250 Q 200 265 225 250" fill="#fff" stroke="#8b1a1a" stroke-width="2"/>
+        <ellipse cx="150" cy="220" rx="14" ry="8" fill="rgba(230,80,80,0.35)"/>
+        <ellipse cx="250" cy="220" rx="14" ry="8" fill="rgba(230,80,80,0.35)"/>
+      </svg>
+    </div>
+    <div id="historicality"></div>
+    <div id="yum"><span>YUM!</span></div>
+    <div id="fallingLetters"></div>
+  </div>
+  <div id="menuButtons">
+    <button class="menuBtn" id="btnPlay">ИГРАТЬ</button>
+    <button class="menuBtn yellow" id="btnSettings">НАСТРОЙКИ</button>
+    <button class="menuBtn red" id="btnAbout">ОБ ИГРЕ</button>
+  </div>
+  <div id="credits">HTML Remake • Fan-made • Baldi's Basics © mystman12</div>
+</div>
+
+<div class="modal" id="settingsModal">
+  <div class="modalBox">
+    <h2>НАСТРОЙКИ</h2>
+    <label>Громкость <input type="range" id="volSlider" min="0" max="100" value="70"></label>
+    <label>Чувствительность мыши <input type="range" id="sensSlider" min="1" max="10" value="5"></label>
+    <label>Сложность
+      <select id="diffSelect" style="font-size:16px;padding:4px 8px;font-family:inherit;">
+        <option value="easy">Лёгкая</option>
+        <option value="normal" selected>Обычная</option>
+        <option value="hard">Сложная</option>
+      </select>
+    </label>
+    <button class="closeBtn" id="closeSettings">ЗАКРЫТЬ</button>
+  </div>
+</div>
+<div class="modal" id="aboutModal">
+  <div class="modalBox">
+    <h2>ОБ ИГРЕ</h2>
+    <p><b>Baldi's Basics in Education and Learning</b> — хоррор-игра от mystman12.</p>
+    <p>Собери 7 тетрадей. В каждой — 3 примера. Ошибёшься — Балди разозлится.</p>
+    <p><b>Управление:</b> WASD — движение, мышь — обзор, E — подобрать, T — карта, 1/2/3 — предметы, Esc — пауза</p>
+    <button class="closeBtn" id="closeAbout">ЗАКРЫТЬ</button>
+  </div>
+</div>
+
+<div id="game">
+  <canvas id="gameCanvas"></canvas>
+  <div id="gameHud">
+    <div id="notebooksText">0/7 Notebooks</div>
+  </div>
+  <div id="staminaWrap"><div id="staminaFill"></div></div>
+  <div id="topRightUI">
+    <div id="ballsRow">
+      <div class="ball red"></div>
+      <div class="ball white"></div>
+      <div class="ball white"></div>
+    </div>
+    <div id="nothingText">Nothing</div>
+  </div>
+  <div id="gameItems">
+    <div class="item-slot" id="slot-soda"><span class="key">1</span>🥤<span class="count" id="cnt-soda">0</span></div>
+    <div class="item-slot" id="slot-scissors"><span class="key">2</span>✂️<span class="count" id="cnt-scissors">0</span></div>
+    <div class="item-slot" id="slot-clock"><span class="key">3</span>⏱️<span class="count" id="cnt-clock">0</span></div>
+  </div>
+  <div id="flash"></div>
+  <div id="flashGreen"></div>
+  <div id="damage"></div>
+  <div id="pickupMsg"></div>
+  <div id="gameHint">WASD — движение • Shift — бег • Мышь — обзор • T — карта<br>E — подобрать • 1/2/3 — предметы • Esc — пауза</div>
+  <button id="pauseBtn">⏸ Пауза</button>
+  <div id="notice"></div>
+</div>
+
+<!-- ============ ПОЛНОЭКРАННАЯ КАРТА (T) ============ -->
+<div id="fullmap" class="hidden">
+  <div class="fullmap-header">КАРТА ШКОЛЫ</div>
+  <canvas id="fullmapCanvas" width="800" height="600"></canvas>
+  <div class="fullmap-hint">Нажми <b>T</b> чтобы закрыть</div>
+</div>
+
+<div id="thinkpad" class="thinkpad-hidden">
+  <div class="tp-device">
+    <div class="tp-antenna"></div>
+    <div class="tp-ball"></div>
+    <div class="tp-title">You Can Think Pad</div>
+    <div class="tp-notebooks">
+      <div class="tp-nb-slot" data-slot="0"></div>
+      <div class="tp-nb-slot" data-slot="1"></div>
+      <div class="tp-nb-slot" data-slot="2"></div>
+    </div>
+    <div class="tp-screen">
+      <div class="tp-question-label">SOLVE MATH Q<span id="tpQNum">1</span>:</div>
+      <div class="tp-question" id="tpQuestion">6+7=</div>
+      <div class="tp-progress" id="tpProgress">1 / 3</div>
+    </div>
+    <div class="tp-baldi-window">
+      <div class="tp-baldi-face">
+        <div class="tp-baldi-body"></div>
+        <div class="tp-baldi-head">
+          <div class="tp-eye left"><div class="tp-pupil"></div></div>
+          <div class="tp-eye right"><div class="tp-pupil"></div></div>
+          <div class="tp-nose"></div>
+          <div class="tp-mouth"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tp-answer-label">ENTER ANSWER</div>
+    <div class="tp-answer-box" id="tpAnswerBox"></div>
+    <div class="tp-keypad">
+      <button class="tp-key" data-key="7">7</button>
+      <button class="tp-key" data-key="8">8</button>
+      <button class="tp-key" data-key="9">9</button>
+      <button class="tp-key" data-key="4">4</button>
+      <button class="tp-key" data-key="5">5</button>
+      <button class="tp-key" data-key="6">6</button>
+      <button class="tp-key" data-key="1">1</button>
+      <button class="tp-key" data-key="2">2</button>
+      <button class="tp-key" data-key="3">3</button>
+      <button class="tp-key" data-key="C">C</button>
+      <button class="tp-key" data-key="0">0</button>
+      <button class="tp-key" data-key="-">−</button>
+    </div>
+    <button class="tp-ok" id="tpOk">OK!</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const menuEl = document.getElementById('menu');
+  const gameEl = document.getElementById('game');
+
+  const histContainer = document.getElementById('historicality');
+  [...'HISTORICALITY'].forEach((ch, i) => {
+    const span = document.createElement('span');
+    span.textContent = ch;
+    span.style.animationDelay = (i * 0.08) + 's';
+    span.style.transform = `rotate(${(Math.random() * 10 - 5).toFixed(1)}deg)`;
+    histContainer.appendChild(span);
+  });
+
+  const fallContainer = document.getElementById('fallingLetters');
+  [...'BASICS'].forEach((ch, i) => {
+    const el = document.createElement('div');
+    el.className = 'fallLetter';
+    el.textContent = ch;
+    el.style.left = (10 + Math.random() * 70) + '%';
+    el.style.animationDelay = (i * 0.35) + 's';
+    el.style.animationDuration = (3 + Math.random() * 1.5) + 's';
+    el.style.fontSize = (30 + Math.random() * 30) + 'px';
+    fallContainer.appendChild(el);
+  });
+
+  const scene = document.getElementById('scene');
+  document.addEventListener('mousemove', (e) => {
+    if (gameEl.classList.contains('active')) return;
+    const dx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+    const dy = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+    scene.style.transform = `translate(-50%, -42%) translate(${dx * 12}px, ${dy * 8}px)`;
+  });
+
+  const settingsModal = document.getElementById('settingsModal');
+  const aboutModal = document.getElementById('aboutModal');
+  document.getElementById('btnSettings').onclick = () => settingsModal.classList.add('show');
+  document.getElementById('closeSettings').onclick = () => settingsModal.classList.remove('show');
+  document.getElementById('btnAbout').onclick = () => aboutModal.classList.add('show');
+  document.getElementById('closeAbout').onclick = () => aboutModal.classList.remove('show');
+  [settingsModal, aboutModal].forEach(m => m.addEventListener('click', (e) => {
+    if (e.target === m) m.classList.remove('show');
+  }));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      settingsModal.classList.remove('show');
+      aboutModal.classList.remove('show');
+    }
+  });
+
+  const volSlider = document.getElementById('volSlider');
+  const sensSlider = document.getElementById('sensSlider');
+  const diffSelect = document.getElementById('diffSelect');
+  try {
+    if (localStorage.baldiVol) volSlider.value = localStorage.baldiVol;
+    if (localStorage.baldiSens) sensSlider.value = localStorage.baldiSens;
+    if (localStorage.baldiDiff) diffSelect.value = localStorage.baldiDiff;
+  } catch(e) {}
+  [volSlider, sensSlider, diffSelect].forEach(el => el.addEventListener('change', () => {
+    try {
+      localStorage.baldiVol = volSlider.value;
+      localStorage.baldiSens = sensSlider.value;
+      localStorage.baldiDiff = diffSelect.value;
+    } catch(e) {}
+  }));
+
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let actx = null;
+  function initAudio() { if (!actx) actx = new AC(); }
+  function getVolume() { return (parseInt(volSlider.value) || 70) / 100; }
+  function tone(freq, dur, type = 'square', vol = 0.06, delay = 0) {
+    if (!actx) return;
+    const v = vol * getVolume();
+    if (v <= 0) return;
+    try {
+      const t0 = actx.currentTime + delay;
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(v, t0);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t0); o.stop(t0 + dur);
+    } catch(e) {}
+  }
+  const sfx = {
+    pickup: () => { tone(660, 0.08); tone(990, 0.12, 'square', 0.06, 0.07); },
+    correct: () => { tone(523, 0.1); tone(659, 0.1, 'square', 0.06, 0.1); tone(784, 0.16, 'square', 0.07, 0.2); },
+    wrong: () => { tone(180, 0.2, 'sawtooth', 0.09); tone(120, 0.3, 'sawtooth', 0.09, 0.15); },
+    stun: () => { for (let i = 0; i < 5; i++) tone(1200 - i*150, 0.05, 'square', 0.06, i*0.05); },
+    baldi: () => { tone(380, 0.1, 'square', 0.06); tone(480, 0.12, 'square', 0.06, 0.14); },
+    hit: () => { tone(70, 0.6, 'sawtooth', 0.12); },
+    step: () => { tone(120 + Math.random() * 40, 0.03, 'square', 0.02); },
+    slap: () => { tone(200, 0.05, 'square', 0.08); tone(150, 0.08, 'square', 0.06, 0.03); },
+  };
+
+  document.querySelectorAll('.menuBtn').forEach(btn => {
+    btn.addEventListener('mouseenter', () => { initAudio(); tone(880, 0.06, 'square', 0.03); });
+    btn.addEventListener('click', () => {
+      initAudio();
+      tone(1200, 0.08, 'square', 0.05);
+      setTimeout(() => tone(1600, 0.1, 'square', 0.05), 60);
+    });
+  });
+
+  // ============================================================
+  //    КАРТА 34×24
+  // ============================================================
+  const MAP_W = 34;
+  const MAP_H = 24;
+
+  const map = [];
+  for (let y = 0; y < MAP_H; y++) map.push(new Array(MAP_W).fill(9));
+
+  function setTile(x, y, t) {
+    if (x >= 0 && y >= 0 && x < MAP_W && y < MAP_H) map[y][x] = t;
+  }
+  function fillRect(x, y, w, h, t) {
+    for (let iy = y; iy < y + h; iy++)
+      for (let ix = x; ix < x + w; ix++)
+        setTile(ix, iy, t);
+  }
+  function drawRect(x, y, w, h, t) {
+    for (let ix = x; ix < x + w; ix++) { setTile(ix, y, t); setTile(ix, y + h - 1, t); }
+    for (let iy = y; iy < y + h; iy++) { setTile(x, iy, t); setTile(x + w - 1, iy, t); }
+  }
+
+  // ШКОЛА
+  drawRect(5, 2, 24, 20, 1);
+  fillRect(6, 3, 22, 18, 0);
+
+  // Внутренние перегородки
+  for (let y = 3; y < 21; y++) setTile(19, y, 1);
+  setTile(19, 6, 3);
+  setTile(19, 12, 3);
+  setTile(19, 17, 3);
+
+  for (let y = 3; y < 21; y++) setTile(11, y, 1);
+  setTile(11, 8, 3);
+  setTile(11, 14, 3);
+
+  for (let x = 20; x < 27; x++) setTile(x, 11, 1);
+  setTile(23, 11, 3);
+
+  for (let x = 6; x < 11; x++) setTile(x, 17, 1);
+  setTile(8, 17, 3);
+
+  // Парты
+  setTile(7, 5, 4); setTile(9, 5, 4);
+  setTile(7, 8, 4); setTile(9, 8, 4);
+  setTile(7, 11, 4); setTile(9, 11, 4);
+  setTile(7, 14, 4); setTile(9, 14, 4);
+
+  setTile(21, 5, 4); setTile(24, 5, 4);
+  setTile(21, 8, 4); setTile(24, 8, 4);
+  setTile(22, 3, 6); setTile(23, 3, 6); setTile(24, 3, 6);
+
+  setTile(21, 14, 4); setTile(24, 14, 4);
+  setTile(21, 17, 4); setTile(24, 17, 4);
+  setTile(22, 20, 6); setTile(23, 20, 6); setTile(24, 20, 6);
+
+  setTile(14, 5, 4); setTile(16, 5, 4);
+  setTile(14, 8, 4); setTile(16, 8, 4);
+  setTile(14, 3, 6); setTile(15, 3, 6); setTile(16, 3, 6);
+
+  setTile(14, 13, 4); setTile(16, 13, 4);
+  setTile(15, 16, 6);
+
+  setTile(7, 19, 4); setTile(9, 19, 4);
+  setTile(8, 20, 6);
+
+  // Внешние двери
+  setTile(14, 2, 3); setTile(15, 2, 3);
+  setTile(14, 21, 3); setTile(15, 21, 3);
+  setTile(28, 11, 3); setTile(28, 12, 3);
+  setTile(5, 9, 3); setTile(5, 10, 3);
+
+  // Окна
+  for (let x = 7; x < 28; x += 5) {
+    if (map[2][x] === 1) setTile(x, 2, 8);
+    if (map[21][x] === 1) setTile(x, 21, 8);
+  }
+
+  // Трава снаружи
+  fillRect(14, 0, 4, 2, 9);
+  fillRect(14, 22, 4, 2, 9);
+  fillRect(0, 8, 5, 8, 9);
+  fillRect(29, 8, 5, 8, 9);
+
+  // ============================================================
+  //                        ПРОВЕРКИ
+  // ============================================================
+  function isWall(x, y) {
+    const tx = Math.floor(x), ty = Math.floor(y);
+    if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return true;
+    const t = map[ty][tx];
+    return !(t === 0 || t === 3);
+  }
+  function wallType(x, y) {
+    const tx = Math.floor(x), ty = Math.floor(y);
+    if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return 1;
+    return map[ty][tx];
+  }
+
+  function isFullyFree(x, y) {
+    return !isWall(x, y)
+        && !isWall(x + 0.4, y) && !isWall(x - 0.4, y)
+        && !isWall(x, y + 0.4) && !isWall(x, y - 0.4);
+  }
+
+  function findFreeSpot(fx, fy) {
+    const sx = Math.floor(fx), sy = Math.floor(fy);
+    if (isFullyFree(sx + 0.5, sy + 0.5)) return { x: sx + 0.5, y: sy + 0.5 };
+
+    for (let rad = 1; rad <= 20; rad++) {
+      for (let dx = -rad; dx <= rad; dx++) {
+        for (let dy = -rad; dy <= rad; dy++) {
+          if (Math.abs(dx) !== rad && Math.abs(dy) !== rad) continue;
+          const nx = sx + dx + 0.5;
+          const ny = sy + dy + 0.5;
+          if (isFullyFree(nx, ny)) return { x: nx, y: ny };
+        }
+      }
+    }
+    for (let y = 1; y < MAP_H - 1; y++) {
+      for (let x = 1; x < MAP_W - 1; x++) {
+        if (!isWall(x + 0.5, y + 0.5)) return { x: x + 0.5, y: y + 0.5 };
+      }
+    }
+    return { x: 8.5, y: 6.5 };
+  }
+
+  function pushOutOfWall(entity) {
+    if (!isWall(entity.x, entity.y)) return;
+    for (let rad = 0.1; rad < 10; rad += 0.15) {
+      for (let a = 0; a < Math.PI * 2; a += Math.PI / 16) {
+        const nx = entity.x + Math.cos(a) * rad;
+        const ny = entity.y + Math.sin(a) * rad;
+        if (!isWall(nx, ny) && nx > 0.5 && ny > 0.5 && nx < MAP_W - 0.5 && ny < MAP_H - 0.5) {
+          entity.x = nx; entity.y = ny; return;
+        }
+      }
+    }
+  }
+
+  const FREE_CELLS = [];
+  for (let y = 1; y < MAP_H - 1; y++) {
+    for (let x = 1; x < MAP_W - 1; x++) {
+      if (isFullyFree(x + 0.5, y + 0.5)) FREE_CELLS.push({ x: x + 0.5, y: y + 0.5 });
+    }
+  }
+
+  function randomFreeFarFrom(fx, fy, minDist) {
+    const c = FREE_CELLS.filter(c => Math.hypot(c.x - fx, c.y - fy) >= minDist);
+    return c.length ? c[Math.floor(Math.random() * c.length)] : FREE_CELLS[0];
+  }
+
+  // ============================================================
+  //                        ОБЪЕКТЫ
+  // ============================================================
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+
+  const player = {
+    x: 8.5, y: 6.5, angle: 0,
+    walkSpeed: 3.0, runSpeed: 5.0,
+    stamina: 100, maxStamina: 100,
+    staminaDrain: 22, staminaRegen: 14,
+    radius: 0.25,
+    bobPhase: 0, bobAmount: 0,
+    noise: 0, speedBoostTimer: 0,
+    stepTimer: 0,
+  };
+
+  const baldi = {
+    x: 8.5, y: 12.5, angle: -Math.PI / 2,
+    baseSpeed: 1.3, speed: 1.3, maxSpeed: 3.0,
+    radius: 0.3,
+    state: 'idle', stateTimer: 0,
+    patrolTarget: { x: 8.5, y: 6.5 },
+    lastKnown: { x: 8.5, y: 6.5 },
+    visionRange: 14, visionAngle: Math.PI / 2.5, hearingRange: 10,
+    angryTimer: 0, stunTimer: 0, slowTimer: 0,
+    walkPhase: 0, voiceTimer: 0,
+    path: [], pathTimer: 0,
+    hasChased: false,
+    slapTimer: 0, slapPhase: 0,
+  };
+
+  let notebooks = [];
+  let items = [];
+  let collectedNotebooks = 0;
+  const inventory = { soda: 0, scissors: 0, clock: 0 };
+
+  const NOTEBOOK_SPOTS = [
+    { x: 7.5,  y: 4.5  },
+    { x: 16.5, y: 6.5  },
+    { x: 22.5, y: 6.5  },
+    { x: 8.5,  y: 13.5 },
+    { x: 22.5, y: 14.5 },
+    { x: 14.5, y: 14.5 },
+    { x: 8.5,  y: 19.5 },
+  ];
+
+  function spawnNotebooks() {
+    notebooks = [];
+    for (let i = 0; i < 7; i++) {
+      const s = NOTEBOOK_SPOTS[i];
+      let spot;
+      if (isFullyFree(s.x, s.y)) {
+        spot = { x: s.x, y: s.y };
+      } else {
+        spot = findFreeSpot(s.x, s.y);
+      }
+      notebooks.push({ x: spot.x, y: spot.y, taken: false, bob: Math.random() * 6.28 });
+    }
+  }
+
+  function spawnItems() {
+    items = [];
+    const types = ['soda', 'scissors', 'clock'];
+    const used = new Set();
+    for (let i = 0; i < 6; i++) {
+      let tries = 0, cell;
+      do {
+        cell = randomFreeFarFrom(player.x, player.y, 3);
+        tries++;
+      } while (used.has(cell.x + ',' + cell.y) && tries < 100);
+      used.add(cell.x + ',' + cell.y);
+      items.push({ x: cell.x, y: cell.y,
+        type: types[Math.floor(Math.random() * 3)], taken: false, bob: Math.random() * 6.28 });
+    }
+  }
+
+  const el = {
+    notebooks: document.getElementById('notebooksText'),
+    staminaFill: document.getElementById('staminaFill'),
+    notice: document.getElementById('notice'),
+    flash: document.getElementById('flash'),
+    flashGreen: document.getElementById('flashGreen'),
+    damage: document.getElementById('damage'),
+    pickupMsg: document.getElementById('pickupMsg'),
+    cntSoda: document.getElementById('cnt-soda'),
+    cntScissors: document.getElementById('cnt-scissors'),
+    cntClock: document.getElementById('cnt-clock'),
+    slotSoda: document.getElementById('slot-soda'),
+    slotScissors: document.getElementById('slot-scissors'),
+    slotClock: document.getElementById('slot-clock'),
+  };
+
+  // ============================================================
+  //                 ПОЛНОЭКРАННАЯ КАРТА
+  // ============================================================
+  const fullmapEl = document.getElementById('fullmap');
+  const fullmapCanvas = document.getElementById('fullmapCanvas');
+  const fullmapCtx = fullmapCanvas.getContext('2d');
+  let mapOpen = false;
+
+  function toggleFullMap() {
+    mapOpen = !mapOpen;
+    if (mapOpen) {
+      fullmapEl.classList.remove('hidden');
+      if (document.pointerLockElement) document.exitPointerLock();
+
+      const maxW = Math.min(window.innerWidth * 0.95, 1400);
+      const maxH = window.innerHeight * 0.78;
+      const aspect = MAP_W / MAP_H;
+      let w = maxW;
+      let h = w / aspect;
+      if (h > maxH) {
+        h = maxH;
+        w = h * aspect;
+      }
+      fullmapCanvas.width = Math.floor(w);
+      fullmapCanvas.height = Math.floor(h);
+      renderFullMap();
+    } else {
+      fullmapEl.classList.add('hidden');
+      if (gameRunning && !gamePaused) canvas.requestPointerLock();
+    }
+  }
+
+  function renderFullMap() {
+    if (!mapOpen) return;
+    const W = fullmapCanvas.width;
+    const H = fullmapCanvas.height;
+    const cellW = W / MAP_W;
+    const cellH = H / MAP_H;
+
+    fullmapCtx.clearRect(0, 0, W, H);
+    fullmapCtx.fillStyle = '#1a1a2e';
+    fullmapCtx.fillRect(0, 0, W, H);
+
+    for (let y = 0; y < MAP_H; y++) {
+      for (let x = 0; x < MAP_W; x++) {
+        const t = map[y][x];
+        let color;
+        if (t === 0) color = '#dcd0b8';
+        else if (t === 1) color = '#666';
+        else if (t === 2) color = '#3a4a7a';
+        else if (t === 3) color = '#ff2020';
+        else if (t === 4) color = '#a06a3a';
+        else if (t === 6) color = '#1e5a32';
+        else if (t === 8) color = '#a0d0e8';
+        else if (t === 9) color = '#2a6a2a';
+        else color = '#444';
+        fullmapCtx.fillStyle = color;
+        fullmapCtx.fillRect(x * cellW, y * cellH, cellW, cellH);
+        fullmapCtx.strokeStyle = 'rgba(0,0,0,0.15)';
+        fullmapCtx.lineWidth = 1;
+        fullmapCtx.strokeRect(x * cellW, y * cellH, cellW, cellH);
+      }
+    }
+
+    // Тетради
+    for (const nb of notebooks) {
+      if (nb.taken) continue;
+      fullmapCtx.fillStyle = 'rgba(255,255,100,0.3)';
+      fullmapCtx.beginPath();
+      fullmapCtx.arc(nb.x * cellW, nb.y * cellH, cellW * 1.2, 0, Math.PI * 2);
+      fullmapCtx.fill();
+      fullmapCtx.fillStyle = '#ffe600';
+      fullmapCtx.beginPath();
+      fullmapCtx.arc(nb.x * cellW, nb.y * cellH, Math.max(4, cellW * 0.4), 0, Math.PI * 2);
+      fullmapCtx.fill();
+      fullmapCtx.strokeStyle = '#000';
+      fullmapCtx.lineWidth = 2;
+      fullmapCtx.stroke();
+    }
+
+    // Предметы
+    for (const it of items) {
+      if (it.taken) continue;
+      fullmapCtx.fillStyle = '#00cc00';
+      fullmapCtx.beginPath();
+      fullmapCtx.arc(it.x * cellW, it.y * cellH, Math.max(3, cellW * 0.3), 0, Math.PI * 2);
+      fullmapCtx.fill();
+      fullmapCtx.strokeStyle = '#000';
+      fullmapCtx.lineWidth = 1.5;
+      fullmapCtx.stroke();
+    }
+
+    // Балди с пульсацией
+    const pulse = (Math.sin(performance.now() / 200) + 1) * 0.5;
+    fullmapCtx.fillStyle = `rgba(255, 50, 50, ${0.4 + pulse * 0.4})`;
+    fullmapCtx.beginPath();
+    fullmapCtx.arc(baldi.x * cellW, baldi.y * cellH, cellW * (1.5 + pulse * 0.5), 0, Math.PI * 2);
+    fullmapCtx.fill();
+
+    fullmapCtx.fillStyle = '#ff2020';
+    fullmapCtx.beginPath();
+    fullmapCtx.arc(baldi.x * cellW, baldi.y * cellH, Math.max(6, cellW * 0.55), 0, Math.PI * 2);
+    fullmapCtx.fill();
+    fullmapCtx.strokeStyle = '#000';
+    fullmapCtx.lineWidth = 2.5;
+    fullmapCtx.stroke();
+    fullmapCtx.fillStyle = '#fff';
+    fullmapCtx.font = 'bold ' + Math.max(10, cellW * 0.8) + 'px "Comic Sans MS", cursive';
+    fullmapCtx.textAlign = 'center';
+    fullmapCtx.textBaseline = 'middle';
+    fullmapCtx.fillText('B', baldi.x * cellW, baldi.y * cellH + 1);
+
+    // Игрок
+    const px = player.x * cellW;
+    const py = player.y * cellH;
+    fullmapCtx.fillStyle = 'rgba(0, 170, 255, 0.35)';
+    fullmapCtx.beginPath();
+    fullmapCtx.arc(px, py, cellW * 1.3, 0, Math.PI * 2);
+    fullmapCtx.fill();
+    fullmapCtx.fillStyle = '#00aaff';
+    fullmapCtx.beginPath();
+    fullmapCtx.arc(px, py, Math.max(6, cellW * 0.55), 0, Math.PI * 2);
+    fullmapCtx.fill();
+    fullmapCtx.strokeStyle = '#000';
+    fullmapCtx.lineWidth = 2.5;
+    fullmapCtx.stroke();
+
+    const dirX = Math.cos(player.angle);
+    const dirY = Math.sin(player.angle);
+    const arrowLen = cellW * 1.5;
+    fullmapCtx.strokeStyle = '#fff';
+    fullmapCtx.lineWidth = 4;
+    fullmapCtx.lineCap = 'round';
+    fullmapCtx.beginPath();
+    fullmapCtx.moveTo(px, py);
+    fullmapCtx.lineTo(px + dirX * arrowLen, py + dirY * arrowLen);
+    fullmapCtx.stroke();
+    fullmapCtx.fillStyle = '#fff';
+    fullmapCtx.beginPath();
+    fullmapCtx.arc(px + dirX * arrowLen, py + dirY * arrowLen, 5, 0, Math.PI * 2);
+    fullmapCtx.fill();
+
+    fullmapCtx.fillStyle = '#fff';
+    fullmapCtx.font = 'bold ' + Math.max(10, cellW * 0.8) + 'px "Comic Sans MS", cursive';
+    fullmapCtx.textAlign = 'center';
+    fullmapCtx.textBaseline = 'middle';
+    fullmapCtx.fillText('Я', px, py + 1);
+
+    // Легенда
+    const legendX = 20;
+    let legendY = 20;
+    const legendLineH = 26;
+
+    fullmapCtx.fillStyle = 'rgba(0,0,0,0.8)';
+    fullmapCtx.fillRect(legendX - 10, legendY - 10, 280, 200);
+    fullmapCtx.strokeStyle = '#ffe600';
+    fullmapCtx.lineWidth = 2;
+    fullmapCtx.strokeRect(legendX - 10, legendY - 10, 280, 200);
+
+    fullmapCtx.font = 'bold 16px "Comic Sans MS", cursive';
+    fullmapCtx.textAlign = 'left';
+    fullmapCtx.textBaseline = 'middle';
+
+    fullmapCtx.fillStyle = '#00aaff';
+    fullmapCtx.beginPath();
+    fullmapCtx.arc(legendX + 10, legendY + 10, 8, 0, Math.PI * 2);
+    fullmapCtx.fill();
+    fullmapCtx.strokeStyle = '#fff';
+    fullmapCtx.lineWidth = 2;
+    fullmapCtx.stroke();
+    fullmapCtx.fillStyle = '#fff';
+    fullmapCtx.fillText('— Ты (куда смотришь)', legendX + 30, legendY + 10);
+
+    legendY += legendLineH;
+    fullmapCtx.fillStyle = '#ff2020';
+    fullmapCtx.beginPath();
+    fullmapCtx.arc(legendX + 10, legendY + 10, 8, 0, Math.PI * 2);
+    fullmapCtx.fill();
+    fullmapCtx.strokeStyle = '#fff';
+    fullmapCtx.lineWidth = 2;
+    fullmapCtx.stroke();
+    fullmapCtx.fillStyle = '#fff';
+    fullmapCtx.fillText('— Балди', legendX + 30, legendY + 10);
+
+    legendY += legendLineH;
+    fullmapCtx.fillStyle = '#ffe600';
+    fullmapCtx.beginPath();
+    fullmapCtx.arc(legendX + 10, legendY + 10, 7, 0, Math.PI * 2);
+    fullmapCtx.fill();
+    fullmapCtx.strokeStyle = '#000';
+    fullmapCtx.lineWidth = 1.5;
+    fullmapCtx.stroke();
+    fullmapCtx.fillStyle = '#fff';
+    fullmapCtx.fillText('— Тетрадь', legendX + 30, legendY + 10);
+
+    legendY += legendLineH;
+    fullmapCtx.fillStyle = '#00cc00';
+    fullmapCtx.beginPath();
+    fullmapCtx.arc(legendX + 10, legendY + 10, 6, 0, Math.PI * 2);
+    fullmapCtx.fill();
+    fullmapCtx.fillStyle = '#fff';
+    fullmapCtx.fillText('— Предмет', legendX + 30, legendY + 10);
+
+    legendY += legendLineH;
+    fullmapCtx.fillStyle = '#ff2020';
+    fullmapCtx.fillRect(legendX + 3, legendY + 3, 14, 14);
+    fullmapCtx.fillStyle = '#fff';
+    fullmapCtx.fillText('— Дверь', legendX + 30, legendY + 10);
+
+    legendY += legendLineH;
+    fullmapCtx.fillStyle = '#3a4a7a';
+    fullmapCtx.fillRect(legendX + 3, legendY + 3, 14, 14);
+    fullmapCtx.fillStyle = '#fff';
+    fullmapCtx.fillText('— Класс', legendX + 30, legendY + 10);
+  }
+
+  // ============================================================
+  //                        УПРАВЛЕНИЕ
+  // ============================================================
+  const keys = {};
+  window.addEventListener('keydown', (e) => {
+    const code = e.code;
+    keys[code] = true;
+    if (['Space','ShiftLeft','ShiftRight','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(code)) e.preventDefault();
+    if (!gameRunning || gamePaused) return;
+
+    // Карта на T
+    if (code === 'KeyT') {
+      toggleFullMap();
+      return;
+    }
+
+    if (mapOpen) return;
+
+    if (code === 'Digit1' && inventory.soda > 0) useItem('soda');
+    if (code === 'Digit2' && inventory.scissors > 0) useItem('scissors');
+    if (code === 'Digit3' && inventory.clock > 0) useItem('clock');
+    if (code === 'KeyE') tryPickup();
+    if (code === 'Escape') pauseGame();
+  });
+  window.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+  let mouseLocked = false;
+  canvas.addEventListener('click', () => {
+    if (!mouseLocked && !gamePaused && gameRunning && !mapOpen) canvas.requestPointerLock();
+  });
+  document.addEventListener('pointerlockchange', () => {
+    mouseLocked = document.pointerLockElement === canvas;
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!mouseLocked || gamePaused || mapOpen) return;
+    const sens = (parseInt(sensSlider.value) || 5) / 5;
+    player.angle += e.movementX * 0.0022 * sens;
+  });
+
+  // ============================================================
+  //                        ВОПРОСЫ
+  // ============================================================
+  function generateOneQuestion() {
+    const diff = Math.min(15, 3 + collectedNotebooks * 1.3);
+    const a = Math.floor(Math.random() * diff) + 1;
+    const b = Math.floor(Math.random() * diff) + 1;
+    const op = Math.random() < 0.65 ? '+' : '-';
+    let answer, text;
+    if (op === '+') { answer = a + b; text = a + '+' + b + '='; }
+    else { const hi = Math.max(a, b), lo = Math.min(a, b); answer = hi - lo; text = hi + '-' + lo + '='; }
+    return { text, answer };
+  }
+
+  let pendingQuestions = [];
+  let currentQuestionIdx = 0;
+  let pendingQuestion = null;
+  let tpInput = '';
+
+  function updateTpAnswer() {
+    const box = document.getElementById('tpAnswerBox');
+    if (box) box.textContent = tpInput;
+  }
+
+  function showCurrentQuestion() {
+    pendingQuestion = pendingQuestions[currentQuestionIdx];
+    tpInput = '';
+    updateTpAnswer();
+    const pad = document.getElementById('thinkpad');
+    pad.classList.remove('thinkpad-hidden', 'shake', 'win', 'lose');
+    document.getElementById('tpQNum').textContent = collectedNotebooks;
+    document.getElementById('tpQuestion').textContent = pendingQuestion.text;
+    document.getElementById('tpProgress').textContent = (currentQuestionIdx + 1) + ' / 3';
+    const slots = pad.querySelectorAll('.tp-nb-slot');
+    slots.forEach((sl, i) => {
+      if (i < currentQuestionIdx) sl.classList.add('done');
+      else sl.classList.remove('done');
+    });
+  }
+
+  function askQuestion() {
+    pendingQuestions = [generateOneQuestion(), generateOneQuestion(), generateOneQuestion()];
+    currentQuestionIdx = 0;
+    gamePaused = true;
+    showCurrentQuestion();
+    if (document.pointerLockElement) document.exitPointerLock();
+    sfx.baldi();
+  }
+
+  function submitAnswer(answerStr) {
+    if (!pendingQuestion) return;
+    const ans = parseInt(answerStr);
+    const correct = ans === pendingQuestion.answer;
+    const pad = document.getElementById('thinkpad');
+
+    if (correct) {
+      pad.classList.add('win');
+      sfx.correct();
+      const slots = pad.querySelectorAll('.tp-nb-slot');
+      if (slots[currentQuestionIdx]) slots[currentQuestionIdx].classList.add('done');
+      setTimeout(() => {
+        currentQuestionIdx++;
+        if (currentQuestionIdx >= 3) {
+          pad.classList.add('thinkpad-hidden');
+          gamePaused = false;
+          pendingQuestions = [];
+          pendingQuestion = null;
+          if (baldi.hasChased) baldi.speed = Math.max(baldi.baseSpeed, baldi.speed - 0.15);
+          if (!document.pointerLockElement && gameRunning) canvas.requestPointerLock();
+          showMsg('✓ Тетрадь сдана!');
+        } else {
+          showCurrentQuestion();
+        }
+      }, 900);
+    } else {
+      pad.classList.add('shake', 'lose');
+      sfx.wrong();
+      setTimeout(() => {
+        pad.classList.remove('shake', 'lose');
+        tpInput = '';
+        updateTpAnswer();
+      }, 1200);
+      setTimeout(() => {
+        if (!baldi.hasChased) {
+          baldi.hasChased = true;
+          const s = findFreeSpot(24, 18);
+          baldi.x = s.x; baldi.y = s.y;
+          baldi.state = 'chase';
+          baldi.lastKnown = { x: player.x, y: player.y };
+          baldi.path = [];
+          showMsg('💀 Балди разозлился!');
+        }
+        baldi.speed = Math.min(baldi.maxSpeed, baldi.speed + 0.3);
+        baldi.angryTimer = 8;
+        baldi.state = 'chase';
+        baldi.stateTimer = 15;
+        baldi.lastKnown = { x: player.x, y: player.y };
+        baldi.path = [];
+        el.flash.style.opacity = 0.6;
+        setTimeout(() => el.flash.style.opacity = 0, 250);
+        el.damage.style.opacity = 0.7;
+        setTimeout(() => el.damage.style.opacity = 0, 500);
+      }, 900);
+    }
+  }
+
+  function initThinkPad() {
+    const pad = document.getElementById('thinkpad');
+    pad.querySelectorAll('.tp-key').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const k = btn.dataset.key;
+        if (k === 'C') tpInput = '';
+        else if (k === '-') {}
+        else if (tpInput.length < 4) tpInput += k;
+        updateTpAnswer();
+        tone(600 + Math.random() * 200, 0.04, 'square', 0.03);
+      });
+    });
+    document.getElementById('tpOk').addEventListener('click', () => {
+      if (tpInput.length === 0) return;
+      submitAnswer(tpInput);
+    });
+    window.addEventListener('keydown', (e) => {
+      if (!pendingQuestion) return;
+      if (pad.classList.contains('thinkpad-hidden')) return;
+      if (e.key >= '0' && e.key <= '9') { if (tpInput.length < 4) tpInput += e.key; updateTpAnswer(); }
+      else if (e.key === 'Backspace' || e.key.toLowerCase() === 'c') { tpInput = ''; updateTpAnswer(); }
+      else if (e.key === 'Enter') { if (tpInput.length > 0) submitAnswer(tpInput); }
+    });
+  }
+
+  function showMsg(text) {
+    el.pickupMsg.textContent = text;
+    el.pickupMsg.style.opacity = 1;
+    clearTimeout(showMsg._t);
+    showMsg._t = setTimeout(() => el.pickupMsg.style.opacity = 0, 1300);
+  }
+
+  function useItem(type) {
+    if (inventory[type] <= 0) return;
+    if (type === 'soda') {
+      inventory.soda--; updateItemUI();
+      player.speedBoostTimer = 12;
+      showMsg('🥤 Ускорение!');
+    } else if (type === 'scissors') {
+      const d = Math.hypot(baldi.x - player.x, baldi.y - player.y);
+      if (d < 6) {
+        inventory.scissors--; updateItemUI();
+        baldi.state = 'stunned'; baldi.stunTimer = 6;
+        showMsg('✂️ Балди оглушён!');
+        sfx.stun();
+      } else showMsg('✂️ Слишком далеко!');
+    } else if (type === 'clock') {
+      inventory.clock--; updateItemUI();
+      baldi.slowTimer = 8;
+      showMsg('⏱️ Балди замедлен!');
+    }
+  }
+
+  function updateItemUI() {
+    el.cntSoda.textContent = inventory.soda;
+    el.cntScissors.textContent = inventory.scissors;
+    el.cntClock.textContent = inventory.clock;
+    el.slotSoda.classList.toggle('active', inventory.soda > 0);
+    el.slotScissors.classList.toggle('active', inventory.scissors > 0);
+    el.slotClock.classList.toggle('active', inventory.clock > 0);
+  }
+
+  function tryPickup() {
+    let closest = null, bestDist = 1.0;
+    for (const it of items) {
+      if (it.taken) continue;
+      const d = Math.hypot(it.x - player.x, it.y - player.y);
+      if (d < bestDist) { bestDist = d; closest = it; }
+    }
+    if (closest) {
+      closest.taken = true;
+      inventory[closest.type]++;
+      updateItemUI();
+      sfx.pickup();
+      const names = { soda: '🥤 Зелье', scissors: '✂️ Ножницы', clock: '⏱️ Часы' };
+      showMsg(names[closest.type] + ' получено!');
+    }
+  }
+
+  // ============================================================
+  //                        СОСТОЯНИЕ
+  // ============================================================
+  let gameRunning = false;
+  let gamePaused = false;
+  let lastTime = 0;
+  let rafId = null;
+
+  function startGame() {
+    menuEl.classList.add('hidden');
+    gameEl.classList.add('active');
+
+    const pSpawn = findFreeSpot(8, 6);
+    player.x = pSpawn.x;
+    player.y = pSpawn.y;
+    player.angle = 0;
+    player.stamina = 100;
+    player.speedBoostTimer = 0;
+
+    const diff = diffSelect.value;
+    if (diff === 'easy') {
+      baldi.baseSpeed = 1.0; baldi.speed = 1.0; baldi.maxSpeed = 2.2;
+      baldi.visionRange = 10; baldi.hearingRange = 8;
+    } else if (diff === 'hard') {
+      baldi.baseSpeed = 1.7; baldi.speed = 1.7; baldi.maxSpeed = 3.8;
+      baldi.visionRange = 17; baldi.hearingRange = 12;
+    } else {
+      baldi.baseSpeed = 1.3; baldi.speed = 1.3; baldi.maxSpeed = 3.0;
+      baldi.visionRange = 14; baldi.hearingRange = 10;
+    }
+
+    const bSpawn = findFreeSpot(8, 13);
+    baldi.x = bSpawn.x;
+    baldi.y = bSpawn.y;
+    baldi.angle = -Math.PI / 2;
+    baldi.angryTimer = 0; baldi.stunTimer = 0; baldi.slowTimer = 0;
+    baldi.state = 'idle'; baldi.path = [];
+    baldi.hasChased = false;
+    baldi.slapTimer = 0;
+
+    collectedNotebooks = 0;
+    inventory.soda = 0; inventory.scissors = 0; inventory.clock = 0;
+    updateItemUI();
+    el.notebooks.textContent = '0/7 Notebooks';
+
+    spawnNotebooks();
+    spawnItems();
+
+    resize();
+    gameRunning = true;
+    gamePaused = false;
+    lastTime = performance.now();
+    canvas.requestPointerLock();
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function returnToMenu() {
+    gameRunning = false;
+    gamePaused = false;
+    gameEl.classList.remove('active');
+    menuEl.classList.remove('hidden');
+    if (document.pointerLockElement) document.exitPointerLock();
+    if (mapOpen) toggleFullMap();
+    if (rafId) cancelAnimationFrame(rafId);
+  }
+
+  function pauseGame() {
+    if (!gameRunning) return;
+    gamePaused = true;
+    el.notice.innerHTML =
+      '<div style="font-size:40px;margin-bottom:14px">ПАУЗА</div>' +
+      '<div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap"></div>';
+    const box = el.notice.querySelector('div:last-child');
+    const b1 = document.createElement('button');
+    b1.textContent = 'ПРОДОЛЖИТЬ';
+    b1.onclick = () => { el.notice.style.display = 'none'; gamePaused = false; canvas.requestPointerLock(); };
+    const b2 = document.createElement('button');
+    b2.textContent = 'В МЕНЮ';
+    b2.style.background = '#e63329';
+    b2.style.color = '#fff';
+    b2.onclick = () => { el.notice.style.display = 'none'; returnToMenu(); };
+    box.appendChild(b1);
+    box.appendChild(b2);
+    el.notice.style.display = 'block';
+    if (document.pointerLockElement) document.exitPointerLock();
+  }
+
+  document.getElementById('pauseBtn').onclick = pauseGame;
+
+  function endGame(win) {
+    gameRunning = false;
+    gamePaused = true;
+    if (document.pointerLockElement) document.exitPointerLock();
+    if (mapOpen) toggleFullMap();
+    if (!win) sfx.hit();
+    el.notice.innerHTML =
+      '<div style="font-size:46px;margin-bottom:16px">' + (win ? '🎉 ПОБЕДА!' : '💀 БАЛДИ ПОЙМАЛ ТЕБЯ!') + '</div>' +
+      '<div style="font-size:20px;margin-bottom:24px;color:#666">' +
+        (win ? 'Ты собрал все 7 тетрадей!' : 'Попробуй снова.') +
+      '</div>' +
+      '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"></div>';
+    const box = el.notice.querySelector('div:last-child');
+    const b1 = document.createElement('button');
+    b1.textContent = 'ЗАНОВО';
+    b1.onclick = () => { el.notice.style.display = 'none'; startGame(); };
+    const b2 = document.createElement('button');
+    b2.textContent = 'В МЕНЮ';
+    b2.style.background = '#e63329';
+    b2.style.color = '#fff';
+    b2.onclick = () => { el.notice.style.display = 'none'; returnToMenu(); };
+    box.appendChild(b1);
+    box.appendChild(b2);
+    el.notice.style.display = 'block';
+  }
+
+  function hasLineOfSight(x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const dist = Math.hypot(dx, dy);
+    const steps = Math.ceil(dist * 10);
+    for (let i = 1; i < steps; i++) {
+      const t = i / steps;
+      if (isWall(x1 + dx * t, y1 + dy * t)) return false;
+    }
+    return true;
+  }
+
+  function baldiCanSeePlayer() {
+    if (baldi.state === 'stunned') return false;
+    const dx = player.x - baldi.x, dy = player.y - baldi.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > baldi.visionRange) return false;
+    const a = Math.atan2(dy, dx);
+    let diff = a - baldi.angle;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    if (Math.abs(diff) > baldi.visionAngle / 2) return false;
+    return hasLineOfSight(baldi.x, baldi.y, player.x, player.y);
+  }
+
+  function baldiCanHearPlayer() {
+    const d = Math.hypot(player.x - baldi.x, player.y - baldi.y);
+    return d < baldi.hearingRange * (0.35 + player.noise);
+  }
+
+  function bfsPath(sx, sy, tx, ty) {
+    sx = Math.floor(sx); sy = Math.floor(sy);
+    tx = Math.floor(tx); ty = Math.floor(ty);
+    if (sx === tx && sy === ty) return [];
+    if (isWall(tx + 0.5, ty + 0.5) || isWall(sx + 0.5, sy + 0.5)) return [];
+
+    const size = MAP_W * MAP_H;
+    const visited = new Uint8Array(size);
+    const prev = new Int32Array(size).fill(-1);
+    const q = new Int32Array(size);
+    let head = 0, tail = 0;
+    const start = sy * MAP_W + sx;
+    q[tail++] = start;
+    visited[start] = 1;
+
+    while (head < tail) {
+      const cur = q[head++];
+      const cx = cur % MAP_W, cy = (cur / MAP_W) | 0;
+      if (cx === tx && cy === ty) {
+        const path = [];
+        let n = cur;
+        while (n !== start) {
+          path.push({ x: (n % MAP_W) + 0.5, y: ((n / MAP_W) | 0) + 0.5 });
+          n = prev[n];
+        }
+        path.reverse();
+        return path;
+      }
+      const nbrs = [[1,0],[-1,0],[0,1],[0,-1]];
+      for (const [ox, oy] of nbrs) {
+        const nx = cx + ox, ny = cy + oy;
+        if (nx < 0 || ny < 0 || nx >= MAP_W || ny >= MAP_H) continue;
+        if (isWall(nx + 0.5, ny + 0.5)) continue;
+        const idx = ny * MAP_W + nx;
+        if (visited[idx]) continue;
+        visited[idx] = 1;
+        prev[idx] = cur;
+        q[tail++] = idx;
+      }
+    }
+    return [];
+  }
+
+  function followPath(entity, speed, dt) {
+    if (!entity.path || entity.path.length === 0) return false;
+    while (entity.path.length > 0) {
+      const t = entity.path[0];
+      if (Math.hypot(t.x - entity.x, t.y - entity.y) < 0.35) entity.path.shift();
+      else break;
+    }
+    if (entity.path.length === 0) return false;
+    const target = entity.path[0];
+    const dx = target.x - entity.x, dy = target.y - entity.y;
+    const d = Math.hypot(dx, dy);
+    if (d < 0.05) return true;
+    const vx = (dx / d) * speed * dt;
+    const vy = (dy / d) * speed * dt;
+    const oldX = entity.x, oldY = entity.y;
+    const checkR = entity.radius + 0.05;
+    if (!isWall(entity.x + vx + Math.sign(vx) * checkR, entity.y)) entity.x += vx;
+    if (!isWall(entity.x, entity.y + vy + Math.sign(vy) * checkR)) entity.y += vy;
+    if (Math.abs(entity.x - oldX) < 0.001 && Math.abs(entity.y - oldY) < 0.001) {
+      entity.path = []; entity.pathTimer = 0;
+    }
+    entity.angle = Math.atan2(dy, dx);
+    return true;
+  }
+
+  function update(dt) {
+    pushOutOfWall(player);
+    pushOutOfWall(baldi);
+
+    let forward = 0, strafe = 0;
+    if (keys['KeyW'] || keys['ArrowUp'])    forward += 1;
+    if (keys['KeyS'] || keys['ArrowDown'])  forward -= 1;
+    if (keys['KeyA'] || keys['ArrowLeft'])  strafe  -= 1;
+    if (keys['KeyD'] || keys['ArrowRight']) strafe  += 1;
+
+    const wantsRun = (keys['ShiftLeft'] || keys['ShiftRight']) && player.stamina > 0 && (forward || strafe);
+    let speed = wantsRun ? player.runSpeed : player.walkSpeed;
+    if (player.speedBoostTimer > 0) { speed *= 1.5; player.speedBoostTimer -= dt; }
+
+    if (wantsRun) {
+      player.stamina -= player.staminaDrain * dt;
+      if (player.stamina < 0) player.stamina = 0;
+    } else {
+      player.stamina += player.staminaRegen * dt;
+      if (player.stamina > player.maxStamina) player.stamina = player.maxStamina;
+    }
+
+    let moving = false;
+    if (forward || strafe) {
+      moving = true;
+      const len = Math.hypot(forward, strafe);
+      forward /= len; strafe /= len;
+      const sin = Math.sin(player.angle), cos = Math.cos(player.angle);
+      const dx = forward * cos - strafe * sin;
+      const dy = forward * sin + strafe * cos;
+      const checkR = player.radius + 0.05;
+      const nx = player.x + dx * speed * dt;
+      const ny = player.y + dy * speed * dt;
+      if (!isWall(nx + Math.sign(dx) * checkR, player.y)) player.x = nx;
+      if (!isWall(player.x, ny + Math.sign(dy) * checkR)) player.y = ny;
+      player.bobPhase += dt * (wantsRun ? 14 : 9);
+      player.bobAmount = Math.sin(player.bobPhase) * (wantsRun ? 0.06 : 0.035);
+      player.stepTimer -= dt;
+      if (player.stepTimer <= 0) { player.stepTimer = wantsRun ? 0.35 : 0.55; sfx.step(); }
+    } else {
+      player.bobPhase += dt * 2;
+      player.bobAmount *= 0.9;
+    }
+
+    player.noise = moving ? (wantsRun ? 1.4 : 0.8) : 0.05;
+
+    updateBaldi(dt);
+
+    for (const nb of notebooks) {
+      if (!nb.taken && Math.hypot(nb.x - player.x, nb.y - player.y) < 0.6) {
+        nb.taken = true;
+        collectedNotebooks++;
+        el.notebooks.textContent = collectedNotebooks + '/7 Notebooks';
+        sfx.pickup();
+        askQuestion();
+        return;
+      }
+    }
+    if (collectedNotebooks >= 7) { endGame(true); return; }
+
+    const d = Math.hypot(baldi.x - player.x, baldi.y - player.y);
+    if (d < 0.6 && baldi.hasChased && baldi.state !== 'stunned') { endGame(false); return; }
+
+    el.staminaFill.style.width = player.stamina + '%';
+  }
+
+  function updateBaldi(dt) {
+    if (baldi.angryTimer > 0) baldi.angryTimer -= dt;
+    if (baldi.slowTimer > 0) baldi.slowTimer -= dt;
+    if (baldi.stateTimer > 0) baldi.stateTimer -= dt;
+    baldi.pathTimer -= dt;
+    baldi.voiceTimer -= dt;
+
+    baldi.slapTimer -= dt;
+    if (baldi.slapTimer <= 0) {
+      baldi.slapTimer = 2.0 + Math.random() * 1.5;
+      baldi.slapPhase = 1.0;
+      if (baldi.hasChased) sfx.slap();
+    }
+    if (baldi.slapPhase > 0) {
+      baldi.slapPhase -= dt * 3.5;
+      if (baldi.slapPhase < 0) baldi.slapPhase = 0;
+    }
+
+    if (!baldi.hasChased) {
+      baldi.angle += Math.sin(performance.now() / 2000) * 0.003;
+      return;
+    }
+
+    if (baldi.voiceTimer <= 0 && baldi.state === 'chase') {
+      sfx.baldi();
+      baldi.voiceTimer = 2 + Math.random() * 2;
+    }
+
+    if (baldi.state === 'stunned') {
+      baldi.stunTimer -= dt;
+      if (baldi.stunTimer <= 0) { baldi.state = 'chase'; baldi.stateTimer = 3; }
+      return;
+    }
+
+    const sees = baldiCanSeePlayer();
+    const hears = baldiCanHearPlayer();
+    if (sees || hears) {
+      baldi.state = 'chase';
+      baldi.stateTimer = 4;
+      baldi.lastKnown = { x: player.x, y: player.y };
+    } else if (baldi.state === 'chase' && baldi.stateTimer <= 0) {
+      baldi.state = 'search';
+      baldi.stateTimer = 5;
+    }
+
+    let spd = baldi.speed;
+    if (baldi.angryTimer > 0) spd *= 1.25;
+    if (baldi.slowTimer > 0) spd *= 0.4;
+    if (baldi.state === 'search') spd *= 0.8;
+
+    let target = null;
+    if (baldi.state === 'chase') target = sees ? { x: player.x, y: player.y } : baldi.lastKnown;
+    else target = baldi.lastKnown;
+
+    if (target && (baldi.pathTimer <= 0 || baldi.path.length === 0)) {
+      baldi.path = bfsPath(baldi.x, baldi.y, target.x, target.y);
+      baldi.pathTimer = (baldi.state === 'chase' && sees) ? 0.3 : 0.8;
+    }
+    followPath(baldi, spd, dt);
+    baldi.walkPhase += dt * spd * 2.5;
+  }
+
+  function castRay(angle, maxDist) {
+    const sin = Math.sin(angle), cos = Math.cos(angle);
+    let dist = 0;
+    const step = 0.02;
+    while (dist < maxDist) {
+      dist += step;
+      const x = player.x + cos * dist;
+      const y = player.y + sin * dist;
+      if (isWall(x, y)) return { dist, type: wallType(x, y) };
+    }
+    return { dist: maxDist, type: 0 };
+  }
+
+  function getWallColor(type, shade) {
+    let R, G, B;
+    if (type === 1) { R = 240; G = 235; B = 210; }
+    else if (type === 2) { R = 35; G = 45; B = 85; }
+    else if (type === 3) { R = 200; G = 30; B = 30; }
+    else if (type === 4) { R = 170; G = 110; B = 60; }
+    else if (type === 6) { R = 30; G = 90; B = 50; }
+    else if (type === 8) { R = 180; G = 220; B = 240; }
+    else if (type === 9) { R = 60; G = 140; B = 60; }
+    else { R = 200; G = 200; B = 200; }
+    return 'rgb(' +
+      Math.floor(R * shade) + ',' +
+      Math.floor(G * shade) + ',' +
+      Math.floor(B * shade) + ')';
+  }
+
+  function render() {
+    const W = canvas.width, H = canvas.height;
+    const horizon = H / 2 + player.bobAmount * H * 0.3;
+
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(0, 0, W, horizon);
+    ctx.strokeStyle = 'rgba(180,180,180,0.35)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 12; i++) {
+      const t = i / 12;
+      const y = horizon * (1 - t);
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+
+    const floorGrad = ctx.createLinearGradient(0, horizon, 0, H);
+    floorGrad.addColorStop(0, '#dcd0b8');
+    floorGrad.addColorStop(1, '#a89878');
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, horizon, W, H - horizon);
+
+    const floorTile = 70;
+    const floorOffsetX = -((player.angle * 300) % (floorTile * 2));
+    for (let row = 0; row < 12; row++) {
+      const rowT = row / 12;
+      const rowY = horizon + rowT * rowT * (H - horizon);
+      const rowH = Math.max(2, (row + 1) * (H - horizon) / 80);
+      for (let col = -4; col < 22; col++) {
+        const persp = 1 + rowT * 4;
+        const colX = col * floorTile * persp + floorOffsetX + W/2;
+        const tileW = floorTile * persp;
+        if ((row + col) % 2 === 0) ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        else ctx.fillStyle = 'rgba(0,0,0,0.06)';
+        ctx.fillRect(colX, rowY, tileW, rowH * 1.5);
+      }
+    }
+
+    const FOV = Math.PI / 3;
+    const numRays = Math.min(W, 800);
+    const colW = W / numRays;
+    const zBuffer = new Float32Array(numRays);
+    const maxDist = 40;
+
+    for (let i = 0; i < numRays; i++) {
+      const rayAngle = player.angle - FOV/2 + (i / numRays) * FOV;
+      const { dist, type } = castRay(rayAngle, maxDist);
+      const corrected = Math.max(0.01, dist * Math.cos(rayAngle - player.angle));
+      zBuffer[i] = corrected;
+
+      const wallH = Math.min(H * 3, H / corrected);
+      const y0 = horizon - wallH / 2;
+      const shade = Math.max(0.75, 1 - corrected / (maxDist * 2));
+
+      ctx.fillStyle = getWallColor(type, shade);
+      ctx.fillRect(i * colW, y0, colW + 1, wallH);
+
+      if (type === 4) {
+        const topH = wallH * 0.18;
+        ctx.fillStyle = 'rgb(' + Math.floor(210 * shade) + ',' + Math.floor(145 * shade) + ',' + Math.floor(85 * shade) + ')';
+        ctx.fillRect(i * colW, y0, colW + 1, topH);
+      }
+
+      if (type === 6) {
+        const frameH = wallH * 0.08;
+        ctx.fillStyle = 'rgb(' + Math.floor(107 * shade) + ',' + Math.floor(52 * shade) + ',' + Math.floor(16 * shade) + ')';
+        ctx.fillRect(i * colW, y0, colW + 1, frameH);
+        ctx.fillRect(i * colW, y0 + wallH - frameH, colW + 1, frameH);
+      }
+
+      if (type === 8) {
+        const frameH = wallH * 0.05;
+        ctx.fillStyle = 'rgb(' + Math.floor(120 * shade) + ',' + Math.floor(90 * shade) + ',' + Math.floor(60 * shade) + ')';
+        ctx.fillRect(i * colW, y0, colW + 1, frameH);
+        ctx.fillRect(i * colW, y0 + wallH - frameH, colW + 1, frameH);
+        ctx.fillRect(i * colW, y0 + wallH * 0.5, colW + 1, 3);
+      }
+
+      if (type === 1 || type === 2) {
+        const plinthH = Math.max(2, wallH * 0.08);
+        ctx.fillStyle = type === 1
+          ? 'rgb(' + Math.floor(180 * shade) + ',' + Math.floor(170 * shade) + ',' + Math.floor(140 * shade) + ')'
+          : 'rgb(' + Math.floor(20 * shade) + ',' + Math.floor(30 * shade) + ',' + Math.floor(60 * shade) + ')';
+        ctx.fillRect(i * colW, y0 + wallH - plinthH, colW + 1, plinthH);
+      }
+    }
+
+    const sprites = [];
+    for (const nb of notebooks) if (!nb.taken) sprites.push({ ref: nb, type: 'notebook' });
+    for (const it of items) if (!it.taken) sprites.push({ ref: it, type: 'item' });
+    sprites.push({ ref: baldi, type: 'baldi' });
+
+    for (const s of sprites) {
+      s.dx = s.ref.x - player.x;
+      s.dy = s.ref.y - player.y;
+      s.dist = Math.hypot(s.dx, s.dy);
+    }
+    sprites.sort((a, b) => b.dist - a.dist);
+
+    for (const s of sprites) {
+      if (s.dist < 0.2 || s.dist > maxDist) continue;
+      const angleTo = Math.atan2(s.dy, s.dx);
+      let diff = angleTo - player.angle;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      if (Math.abs(diff) > FOV / 2 + 0.35) continue;
+
+      const screenX = W / 2 + Math.tan(diff) * (W / 2) / Math.tan(FOV / 2);
+      const colIdx = Math.floor((screenX / W) * numRays);
+      if (colIdx < 0 || colIdx >= numRays) continue;
+      if (zBuffer[colIdx] < s.dist - 0.15) continue;
+
+      const baseSize = s.type === 'baldi' ? 1.15 : 0.55;
+      const size = Math.min(H * 1.5, (H / s.dist) * baseSize);
+      const yBottom = horizon + (H / s.dist) * 0.45;
+      const y0 = yBottom - size;
+      drawSprite(s, screenX, y0, size, s.dist);
+    }
+
+    const bdist = Math.hypot(baldi.x - player.x, baldi.y - player.y);
+    if (bdist < 6 && baldi.hasChased && baldi.state !== 'stunned') {
+      ctx.fillStyle = 'rgba(200,0,0,' + ((1 - bdist / 6) * 0.2) + ')';
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    if (baldi.hasChased) {
+      const bdx = baldi.x - player.x;
+      const bdy = baldi.y - player.y;
+      const bd = Math.hypot(bdx, bdy);
+      const angleToBaldi = Math.atan2(bdy, bdx);
+      let diff = angleToBaldi - player.angle;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      if (Math.abs(diff) > 0.7 && bd < 20) {
+        const edgeDist = Math.min(W/2 - 60, H/2 - 60);
+        const arrowX = W/2 + Math.sin(diff) * edgeDist;
+        const arrowY = H/2 - Math.cos(diff) * edgeDist * 0.6;
+        ctx.save();
+        ctx.translate(arrowX, arrowY);
+        ctx.rotate(diff > 0 ? Math.PI/2 : -Math.PI/2);
+        ctx.fillStyle = baldi.state === 'chase' ? 'rgba(255,50,50,' + (0.5 + Math.sin(performance.now()/150)*0.3) + ')' : 'rgba(255,150,0,0.6)';
+        ctx.beginPath();
+        ctx.moveTo(0, -18);
+        ctx.lineTo(-14, 12);
+        ctx.lineTo(0, 5);
+        ctx.lineTo(14, 12);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(W/2 - 8, H/2);
+    ctx.lineTo(W/2 + 8, H/2);
+    ctx.moveTo(W/2, H/2 - 8);
+    ctx.lineTo(W/2, H/2 + 8);
+    ctx.stroke();
+
+    let nearest = null, nd = 1.0;
+    for (const it of items) {
+      if (it.taken) continue;
+      const d = Math.hypot(it.x - player.x, it.y - player.y);
+      if (d < nd) { nd = d; nearest = it; }
+    }
+    if (nearest) {
+      ctx.font = 'bold 22px "Comic Sans MS", cursive';
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = '#000';
+      ctx.fillStyle = '#ffe600';
+      ctx.strokeText('[E] Подобрать', W/2, H - 100);
+      ctx.fillText('[E] Подобрать', W/2, H - 100);
+    }
+
+    if (bdist < 4 && baldi.hasChased && baldi.state !== 'stunned') {
+      const a = (Math.sin(performance.now() / 100) + 1) * 0.5;
+      ctx.font = 'bold 42px "Comic Sans MS", cursive';
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = '#000';
+      ctx.fillStyle = 'rgba(255,50,50,' + (0.7 + a * 0.3) + ')';
+      ctx.strokeText('ОН РЯДОМ!', W/2, 110);
+      ctx.fillText('ОН РЯДОМ!', W/2, 110);
+    }
+
+    // Подсказка про карту в углу экрана
+    ctx.font = 'bold 16px "Comic Sans MS", cursive';
+    ctx.textAlign = 'right';
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#000';
+    ctx.fillStyle = '#ffe600';
+    ctx.strokeText('[T] Карта', W - 20, H - 90);
+    ctx.fillText('[T] Карта', W - 20, H - 90);
+    ctx.textAlign = 'left';
+  }
+
+  function drawSprite(s, cx, y0, size, dist) {
+    if (s.type === 'notebook') {
+      const w = size * 0.55;
+      const x = cx - w / 2;
+      ctx.fillStyle = 'rgba(255,255,100,' + (0.3 + Math.sin(performance.now()/250) * 0.15) + ')';
+      ctx.fillRect(x - 8, y0 + size * 0.1, w + 16, size * 0.7);
+      ctx.fillStyle = '#2e7d32';
+      ctx.fillRect(x, y0 + size * 0.15, w, size * 0.6);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x + 4, y0 + size * 0.22, w - 8, size * 0.46);
+      ctx.fillStyle = '#999';
+      for (let i = 0; i < 4; i++) ctx.fillRect(x + 8, y0 + size * (0.28 + i * 0.09), w - 16, 2);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y0 + size * 0.15, w, size * 0.6);
+    } else if (s.type === 'item') {
+      const w = size * 0.4;
+      const x = cx - w / 2;
+      const y = y0 + size * 0.3;
+      ctx.fillStyle = 'rgba(255,230,0,' + (0.35 + Math.sin(performance.now()/300) * 0.15) + ')';
+      ctx.fillRect(x - 8, y - 8, w + 16, size * 0.55);
+      ctx.fillStyle = '#222';
+      ctx.fillRect(x, y, w, size * 0.45);
+      ctx.strokeStyle = '#ffe600';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x, y, w, size * 0.45);
+      ctx.font = 'bold ' + (size * 0.3) + 'px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const emoji = s.ref.type === 'soda' ? '🥤' : s.ref.type === 'scissors' ? '✂️' : '⏱️';
+      ctx.fillText(emoji, cx, y + size * 0.22);
+      ctx.textBaseline = 'alphabetic';
+    } else if (s.type === 'baldi') {
+      drawBaldi(cx, y0, size);
+    }
+  }
+
+  function drawBaldi(cx, y0, size) {
+    const w = size * 0.55;
+    const x = cx - w / 2;
+    const isAngry = baldi.angryTimer > 0;
+    const isStunned = baldi.state === 'stunned';
+
+    const skinLight = '#f5d4a8';
+    const skinMid   = '#e8bf8d';
+    const skinDark  = '#c99a68';
+    const sweaterMid   = '#3ec355';
+    const sweaterDark  = '#1e8033';
+    const rulerLight = '#f5c542';
+    const rulerDark  = '#a87a1e';
+
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(cx, y0 + size * 0.98, w * 0.7, w * 0.12, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const legOff = Math.sin(baldi.walkPhase) * size * 0.02;
+    ctx.fillStyle = '#2a4a9a';
+    ctx.fillRect(x + w*0.22, y0 + size*0.72 + legOff, w*0.22, size*0.22);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + w*0.22, y0 + size*0.72 + legOff, w*0.22, size*0.22);
+    ctx.fillStyle = '#2a4a9a';
+    ctx.fillRect(x + w*0.56, y0 + size*0.72 - legOff, w*0.22, size*0.22);
+    ctx.strokeRect(x + w*0.56, y0 + size*0.72 - legOff, w*0.22, size*0.22);
+
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath();
+    ctx.ellipse(x + w*0.33, y0 + size*0.96 + legOff, w*0.16, size*0.035, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(x + w*0.67, y0 + size*0.96 - legOff, w*0.16, size*0.035, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const bodyTop = y0 + size * 0.32;
+    const bodyBot = y0 + size * 0.75;
+    ctx.fillStyle = sweaterMid;
+    ctx.beginPath();
+    ctx.moveTo(x + w*0.08, bodyTop);
+    ctx.lineTo(x + w*0.92, bodyTop);
+    ctx.lineTo(x + w*1.0, bodyBot);
+    ctx.lineTo(x, bodyBot);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.moveTo(x + w*0.12, bodyTop + 2);
+    ctx.lineTo(x + w*0.3, bodyTop + 2);
+    ctx.lineTo(x + w*0.28, bodyBot - 2);
+    ctx.lineTo(x + w*0.1, bodyBot - 2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - w*0.22, bodyTop);
+    ctx.quadraticCurveTo(cx, bodyTop + size*0.04, cx + w*0.22, bodyTop);
+    ctx.stroke();
+
+    ctx.fillStyle = sweaterDark;
+    ctx.beginPath();
+    ctx.moveTo(x + w*0.08, bodyTop + size*0.02);
+    ctx.lineTo(x - w*0.08, bodyTop + size*0.06);
+    ctx.lineTo(x - w*0.05, bodyBot - size*0.03);
+    ctx.lineTo(x + w*0.06, bodyBot - size*0.02);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    let rightArmOffset = 0;
+    if (baldi.slapPhase > 0) rightArmOffset = Math.sin(baldi.slapPhase * Math.PI) * 0.15;
+    ctx.fillStyle = sweaterDark;
+    ctx.beginPath();
+    ctx.moveTo(x + w*0.92, bodyTop + size*0.02);
+    ctx.lineTo(x + w*1.08, bodyTop + size*0.08 - rightArmOffset * size);
+    ctx.lineTo(x + w*1.06, bodyBot - size*0.03 - rightArmOffset * size);
+    ctx.lineTo(x + w*0.94, bodyBot - size*0.02);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = skinMid;
+    ctx.beginPath();
+    ctx.arc(x - w*0.065, bodyBot - size*0.01, w*0.09, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x + w*1.07, bodyBot - size*0.01 - rightArmOffset * size, w*0.1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(x + w*1.07, bodyBot - size*0.05 - rightArmOffset * size);
+    let rulerAngle = isAngry ? -0.55 : -0.15;
+    if (baldi.slapPhase > 0) rulerAngle += Math.sin(baldi.slapPhase * Math.PI) * 0.8;
+    ctx.rotate(rulerAngle);
+    const rulerGrad = ctx.createLinearGradient(0, 0, w*0.16, 0);
+    rulerGrad.addColorStop(0, rulerDark);
+    rulerGrad.addColorStop(0.5, rulerLight);
+    rulerGrad.addColorStop(1, rulerDark);
+    ctx.fillStyle = rulerGrad;
+    ctx.fillRect(0, -size*0.32, w*0.16, size*0.38);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, -size*0.32, w*0.16, size*0.38);
+    ctx.fillStyle = '#000';
+    for (let i = 0; i < 6; i++) ctx.fillRect(2, -size*0.3 + i * size*0.06, w*0.08, 1.5);
+    ctx.restore();
+
+    const headCX = cx;
+    const headCY = y0 + size * 0.22;
+    const headRX = w * 0.55;
+    const headRY = w * 0.65;
+
+    const headGrad = ctx.createRadialGradient(
+      headCX - headRX*0.3, headCY - headRY*0.3, headRX*0.1,
+      headCX, headCY, headRX*1.2
+    );
+    headGrad.addColorStop(0, skinLight);
+    headGrad.addColorStop(0.6, skinMid);
+    headGrad.addColorStop(1, skinDark);
+    ctx.fillStyle = headGrad;
+    ctx.beginPath();
+    ctx.ellipse(headCX, headCY, headRX, headRY, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.strokeStyle = '#7a4a2a';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(headCX - headRX*0.55, headCY - headRY*0.35);
+    ctx.quadraticCurveTo(headCX - headRX*0.3, headCY - headRY*0.42, headCX - headRX*0.12, headCY - headRY*0.35);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(headCX + headRX*0.12, headCY - headRY*0.35);
+    ctx.quadraticCurveTo(headCX + headRX*0.3, headCY - headRY*0.42, headCX + headRX*0.55, headCY - headRY*0.35);
+    ctx.stroke();
+
+    const eyeY = headCY - headRY * 0.1;
+    const eyeRX = headRX * 0.28;
+    const eyeRY = headRY * 0.22;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.ellipse(headCX - headRX*0.32, eyeY, eyeRX, eyeRY, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(headCX + headRX*0.32, eyeY, eyeRX, eyeRY, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#000';
+    const pupOff = isAngry ? Math.sin(performance.now()/50) * 1.5 : 0;
+    const pupR = eyeRX * 0.5;
+    ctx.beginPath();
+    ctx.arc(headCX - headRX*0.32 + pupOff, eyeY + eyeRY*0.1, pupR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(headCX + headRX*0.32 + pupOff, eyeY + eyeRY*0.1, pupR, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(headCX - headRX*0.32 + pupOff - pupR*0.3, eyeY + eyeRY*0.1 - pupR*0.3, pupR*0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(headCX + headRX*0.32 + pupOff - pupR*0.3, eyeY + eyeRY*0.1 - pupR*0.3, pupR*0.35, 0, Math.PI * 2);
+    ctx.fill();
+
+    const noseTop = headCY + headRY*0.05;
+    const noseBot = headCY + headRY*0.55;
+    const noseW = headRX * 0.18;
+    ctx.fillStyle = skinMid;
+    ctx.beginPath();
+    ctx.moveTo(headCX, noseTop);
+    ctx.quadraticCurveTo(headCX - noseW*0.7, headCY + headRY*0.3, headCX - noseW*0.4, noseBot);
+    ctx.quadraticCurveTo(headCX, noseBot + headRY*0.08, headCX + noseW*0.4, noseBot);
+    ctx.quadraticCurveTo(headCX + noseW*0.7, headCY + headRY*0.3, headCX, noseTop);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(headCX - noseW*0.25, noseBot - 1, 1.5, 0, Math.PI * 2);
+    ctx.arc(headCX + noseW*0.25, noseBot - 1, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    const mouthY = headCY + headRY*0.78;
+    ctx.strokeStyle = '#8b1a1a';
+    ctx.lineWidth = 2.5;
+    if (isAngry) {
+      ctx.fillStyle = '#000';
+      ctx.beginPath();
+      ctx.ellipse(headCX, mouthY, headRX*0.35, headRY*0.14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#8b1a1a';
+      ctx.stroke();
+      ctx.fillStyle = '#fff';
+      for (let i = -2; i <= 2; i++) {
+        ctx.fillRect(headCX + i * headRX*0.14 - headRX*0.05, mouthY - headRY*0.13, headRX*0.09, headRY*0.09);
+      }
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(headCX - headRX*0.4, mouthY - headRY*0.05);
+      ctx.quadraticCurveTo(headCX, mouthY + headRY*0.15, headCX + headRX*0.4, mouthY - headRY*0.05);
+      ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.moveTo(headCX - headRX*0.3, mouthY + headRY*0.01);
+      ctx.quadraticCurveTo(headCX, mouthY + headRY*0.09, headCX + headRX*0.3, mouthY + headRY*0.01);
+      ctx.quadraticCurveTo(headCX, mouthY + headRY*0.03, headCX - headRX*0.3, mouthY + headRY*0.01);
+      ctx.fill();
+      ctx.strokeStyle = '#8b1a1a';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = 'rgba(230,80,80,0.3)';
+    ctx.beginPath();
+    ctx.ellipse(headCX - headRX*0.7, headCY + headRY*0.3, headRX*0.15, headRY*0.09, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(headCX + headRX*0.7, headCY + headRY*0.3, headRX*0.15, headRY*0.09, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = skinMid;
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(headCX - headRX*0.98, headCY, headRX*0.12, headRY*0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(headCX + headRX*0.98, headCY, headRX*0.12, headRY*0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    if (isStunned) {
+      ctx.fillStyle = '#ffe600';
+      ctx.font = 'bold ' + (size*0.22) + 'px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (let i = 0; i < 3; i++) {
+        const a = performance.now()/300 + i * Math.PI * 2 / 3;
+        const sx = cx + Math.cos(a) * size * 0.35;
+        const sy = y0 + size*0.08 + Math.sin(a) * size * 0.08;
+        ctx.fillText('★', sx, sy);
+      }
+      ctx.textBaseline = 'alphabetic';
+    }
+  }
+
+  function loop(now) {
+    const dt = Math.min(0.05, (now - lastTime) / 1000 || 0);
+    lastTime = now;
+
+    if (gameRunning && !gamePaused && !mapOpen) update(dt);
+    if (gameRunning || gamePaused) render();
+
+    if (mapOpen) renderFullMap();
+
+    if (gameRunning || gamePaused) rafId = requestAnimationFrame(loop);
+  }
+
+  document.getElementById('btnPlay').addEventListener('click', () => {
+    initAudio();
+    startGame();
+  });
+
+  updateItemUI();
+  initThinkPad();
+
+})();
+</script>
+</body>
+</html>
